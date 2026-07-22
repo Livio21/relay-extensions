@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "repositoryId": "livio21.relay.extensions",
+  "extensions": [
+    {
+      "id": "org.relay.extensions.fma",
+      "name": "Free Music Archive (test)",
+      "version": "0.1.0",
+      "kind": "SOURCE",
+      "api": { "minimum": 1, "maximum": 1 },
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/fma-v0.1.0/fma-source-v0.1.0-debug.apk",
+      "sha256": "67e58058c5ecac10371277d8e012ca964b5b881365ad7cffa01e0bc285d68c63",
+      "artifactSizeBytes": 853751,
+      "permissions": ["NETWORK"],
+      "androidPackageName": "org.relay.extensions.fma",
+      "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
+    }
+  ]
+}

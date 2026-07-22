@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "repositoryId": "livio21.relay.extensions",
+  "name": "Livio21 Relay Extensions",
+  "indexUrl": "https://raw.githubusercontent.com/Livio21/relay-extensions/main/index.json",
+  "signingAlgorithm": "ECDSA_P256_SHA256",
+  "signingPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECCVNRtFfzwmazXEaniFf9bKaa5WGfEwFqoLBphre4D9CUMUtawis534RMk7thWBQLUBl8gaxdnMBELNDxCTVRQ=="
+}
