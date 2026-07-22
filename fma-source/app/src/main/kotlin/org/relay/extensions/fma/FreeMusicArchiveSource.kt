@@ -1,6 +1,5 @@
 package org.relay.extensions.fma
 
-import android.text.Html
 import dev.relay.music.source.api.RelaySource
 import dev.relay.music.source.api.RelaySourceApi
 import dev.relay.music.source.api.RelaySourceFactory
@@ -10,6 +9,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import org.json.JSONObject
 
 /**
  * Public Free Music Archive search source. It deliberately makes one bounded request per browse
@@ -34,30 +34,24 @@ private class FreeMusicArchiveSource : RelaySource {
     }
 }
 
-private val trackInfoPattern = Regex("""data-track-info='(\\{.*?})'""")
-private val stringFieldPattern = Regex("""\"([^\"]+)\":\"((?:\\.|[^\"])*)\"""")
-private val playItemBoundary = Regex("""<div class=\"play-item""")
-private val albumPattern = Regex("""ptxt-album.*?<a[^>]*>\s*(.*?)\s*</a>""", setOf(RegexOption.DOT_MATCHES_ALL))
-private val durationPattern = Regex("""<span[^>]*>\s*(\\d{1,2}:\\d{2})\s*</span>""")
-
 private fun parseTracks(html: String): List<RelaySourceTrack> = buildList {
-    trackInfoPattern.findAll(html).take(20).forEach { match ->
-        val fields = stringFieldPattern.findAll(match.groupValues[1]).associate {
-            it.groupValues[1] to it.groupValues[2].unescapeJson()
-        }
-        val streamUrl = fields["playbackUrl"] ?: return@forEach
-        if (!streamUrl.startsWith("https://freemusicarchive.org/track/")) return@forEach
-
-        val end = playItemBoundary.find(html, match.range.last + 1)?.range?.first ?: html.length
-        val card = html.substring(match.range.last + 1, end)
+    var cursor = 0
+    while (size < 20) {
+        val start = html.indexOf("data-track-info='", cursor).takeIf { it >= 0 } ?: return@buildList
+        val jsonStart = start + "data-track-info='".length
+        val jsonEnd = html.indexOf("}'>", jsonStart).takeIf { it >= 0 } ?: return@buildList
+        cursor = jsonEnd + 3
+        val track = JSONObject(html.substring(jsonStart, jsonEnd + 1))
+        val streamUrl = track.optString("playbackUrl")
+        if (!streamUrl.startsWith("https://freemusicarchive.org/track/")) continue
         add(
             RelaySourceTrack(
-                fields["id"] ?: fields["handle"] ?: return@forEach,
+                track.optString("id", track.optString("handle")),
                 streamUrl,
-                fields["title"].orEmpty().ifBlank { "Untitled" },
-                fields["artistName"].orEmpty().ifBlank { "Unknown artist" },
-                albumPattern.find(card)?.groupValues?.getOrNull(1)?.asPlainText(),
-                durationPattern.find(card)?.groupValues?.getOrNull(1)?.toDurationMs(),
+                track.optString("title").ifBlank { "Untitled" },
+                track.optString("artistName").ifBlank { "Unknown artist" },
+                null,
+                null,
                 null,
             ),
         )
@@ -96,15 +90,4 @@ private fun java.io.Reader.readText(limit: Int): String {
 private fun String.removeFieldPrefix(): String = when {
     startsWith("title:", ignoreCase = true) || startsWith("artist:", ignoreCase = true) || startsWith("album:", ignoreCase = true) -> substringAfter(':')
     else -> this
-}
-
-private fun String.unescapeJson(): String = replace("\\/", "/")
-    .replace("\\\"", "\"")
-    .replace("\\\\", "\\")
-    .replace("\\u0026", "&")
-
-private fun String.asPlainText(): String? = Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString().trim().ifEmpty { null }
-
-private fun String.toDurationMs(): Long? = split(':').takeIf { it.size == 2 }?.let { (minutes, seconds) ->
-    ((minutes.toLongOrNull() ?: return null) * 60 + (seconds.toLongOrNull() ?: return null)) * 1_000
 }

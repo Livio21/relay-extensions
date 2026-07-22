@@ -10,8 +10,8 @@ android {
         applicationId = "org.relay.extensions.fma"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
     }
 }
 
@@ -23,4 +23,3 @@ dependencies {
     // Relay parent-loads the API: do not package a duplicate in the source APK.
     compileOnly(project(":relay-source-api"))
 }
-
