@@ -23,6 +23,8 @@ class FreeMusicArchiveSourceFactory : RelaySourceFactory {
 }
 
 private class FreeMusicArchiveSource : RelaySource {
+    private val trackPages = mutableMapOf<String, String>()
+
     override fun getId() = "free-music-archive"
     override fun getName() = "Free Music Archive"
 
@@ -31,11 +33,23 @@ private class FreeMusicArchiveSource : RelaySource {
         val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.name())
         val url = "https://freemusicarchive.org/search?adv=1&quicksearch=$encoded&pageSize=20&sort=track&d=1"
         val html = fetchPublicPage(url)
-        return RelaySourcePage(parseTracks(html), html.contains("page=2"))
+        val tracks = parseTracks(html)
+        trackPages.clear()
+        tracks.forEach { parsed -> parsed.detailsUrl?.let { trackPages[parsed.track.id] = it } }
+        return RelaySourcePage(tracks.map(FmaTrack::track), html.contains("page=2"))
     }
+
+    override fun resolveArtworkUrl(trackId: String): String? = trackPages[trackId]
+        ?.let(::fetchPublicPage)
+        ?.fmaArtworkUrl()
 }
 
-private fun parseTracks(html: String): List<RelaySourceTrack> = buildList {
+private data class FmaTrack(
+    val track: RelaySourceTrack,
+    val detailsUrl: String?,
+)
+
+private fun parseTracks(html: String): List<FmaTrack> = buildList {
     var cursor = 0
     while (size < 20) {
         val start = html.indexOf("data-track-info='", cursor).takeIf { it >= 0 } ?: return@buildList
@@ -48,14 +62,17 @@ private fun parseTracks(html: String): List<RelaySourceTrack> = buildList {
         val streamUrl = track.optString("playbackUrl")
         if (!streamUrl.startsWith("https://freemusicarchive.org/track/")) continue
         add(
-            RelaySourceTrack(
-                track.optString("id", track.optString("handle")),
-                streamUrl,
-                track.optString("title").ifBlank { "Untitled" },
-                track.optString("artistName").ifBlank { "Unknown artist" },
-                card.fmaAlbum(),
-                card.fmaDurationMs(),
-                null,
+            FmaTrack(
+                RelaySourceTrack(
+                    track.optString("id", track.optString("handle")),
+                    streamUrl,
+                    track.optString("title").ifBlank { "Untitled" },
+                    track.optString("artistName").ifBlank { "Unknown artist" },
+                    card.fmaAlbum(),
+                    card.fmaDurationMs(),
+                    null,
+                ),
+                track.optString("url").takeIf { it.startsWith("https://freemusicarchive.org/") },
             ),
         )
     }
@@ -112,6 +129,18 @@ private fun String.fmaDurationMs(): Long? {
     val minutes = parts[0].toLongOrNull() ?: return null
     val seconds = parts[1].toLongOrNull() ?: return null
     return (minutes * 60 + seconds) * 1_000
+}
+
+private fun String.fmaArtworkUrl(): String? {
+    val albumMarker = indexOf("type=album")
+    if (albumMarker < 0) return null
+    val imageStart = lastIndexOf("<img", albumMarker)
+    if (imageStart < 0) return null
+    return substring(imageStart, albumMarker)
+        .substringAfter("src=\"", "")
+        .substringBefore('"')
+        .htmlText()
+        ?.takeIf { it.startsWith("https://freemusicarchive.org/image/") }
 }
 
 @Suppress("DEPRECATION")
