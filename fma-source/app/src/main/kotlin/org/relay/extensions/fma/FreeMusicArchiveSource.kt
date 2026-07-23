@@ -1,5 +1,6 @@
 package org.relay.extensions.fma
 
+import android.text.Html
 import dev.relay.music.source.api.RelaySource
 import dev.relay.music.source.api.RelaySourceApi
 import dev.relay.music.source.api.RelaySourceFactory
@@ -40,7 +41,9 @@ private fun parseTracks(html: String): List<RelaySourceTrack> = buildList {
         val start = html.indexOf("data-track-info='", cursor).takeIf { it >= 0 } ?: return@buildList
         val jsonStart = start + "data-track-info='".length
         val jsonEnd = html.indexOf("}'>", jsonStart).takeIf { it >= 0 } ?: return@buildList
-        cursor = jsonEnd + 3
+        val nextTrack = html.indexOf("data-track-info='", jsonEnd + 3).takeIf { it >= 0 } ?: html.length
+        val card = html.substring(jsonEnd + 3, nextTrack)
+        cursor = nextTrack
         val track = JSONObject(html.substring(jsonStart, jsonEnd + 1))
         val streamUrl = track.optString("playbackUrl")
         if (!streamUrl.startsWith("https://freemusicarchive.org/track/")) continue
@@ -50,8 +53,8 @@ private fun parseTracks(html: String): List<RelaySourceTrack> = buildList {
                 streamUrl,
                 track.optString("title").ifBlank { "Untitled" },
                 track.optString("artistName").ifBlank { "Unknown artist" },
-                null,
-                null,
+                card.fmaAlbum(),
+                card.fmaDurationMs(),
                 null,
             ),
         )
@@ -91,3 +94,25 @@ private fun String.removeFieldPrefix(): String = when {
     startsWith("title:", ignoreCase = true) || startsWith("artist:", ignoreCase = true) || startsWith("album:", ignoreCase = true) -> substringAfter(':')
     else -> this
 }
+
+private fun String.fmaAlbum(): String? = substringAfter("ptxt-album", "")
+    .substringBefore("</span>")
+    .substringAfter("<a", "")
+    .substringAfter(">", "")
+    .substringBefore("</a>")
+    .htmlText()
+
+private fun String.fmaDurationMs(): Long? {
+    val value = substringAfter("col-span-1 align-self-end", "")
+        .substringAfter(">", "")
+        .substringBefore("<")
+        .trim()
+    val parts = value.split(':')
+    if (parts.size != 2) return null
+    val minutes = parts[0].toLongOrNull() ?: return null
+    val seconds = parts[1].toLongOrNull() ?: return null
+    return (minutes * 60 + seconds) * 1_000
+}
+
+@Suppress("DEPRECATION")
+private fun String.htmlText(): String? = Html.fromHtml(this).toString().trim().takeIf(String::isNotEmpty)
