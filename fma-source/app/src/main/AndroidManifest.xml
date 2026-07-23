@@ -1,9 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="dev.relay.music.source.extension" android:required="false" />
 
     <application android:label="Free Music Archive">
         <meta-data android:name="relay.source.api" android:value="1" />
+        <meta-data android:name="relay.source.id" android:value="org.relay.extensions.fma" />
         <meta-data android:name="relay.source.class" android:value=".FreeMusicArchiveSourceFactory" />
     </application>
 </manifest>
-
