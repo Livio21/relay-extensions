@@ -5,6 +5,7 @@ import dev.relay.music.source.api.RelaySource
 import dev.relay.music.source.api.RelaySourceApi
 import dev.relay.music.source.api.RelaySourceFactory
 import dev.relay.music.source.api.RelaySourcePage
+import dev.relay.music.source.api.RelaySourceSetting
 import dev.relay.music.source.api.RelaySourceTrack
 import java.net.HttpURLConnection
 import java.net.URI
@@ -24,16 +25,25 @@ class FreeMusicArchiveSourceFactory : RelaySourceFactory {
 
 private class FreeMusicArchiveSource : RelaySource {
     private val trackPages = mutableMapOf<String, String>()
+    @Volatile private var pageSize = 20
 
     override fun getId() = "free-music-archive"
     override fun getName() = "Free Music Archive"
 
+    override fun getSettings() = listOf(
+        RelaySourceSetting("page-size", "Results per page", RelaySourceSetting.Type.CHOICE, "20", listOf("10", "20", "40")),
+    )
+
+    override fun applySettings(values: Map<String, String>) {
+        values["page-size"]?.toIntOrNull()?.let { pageSize = it }
+    }
+
     override fun search(query: String, page: Int): RelaySourcePage {
         val term = query.removeFieldPrefix().trim()
         val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.name())
-        val url = "https://freemusicarchive.org/search?adv=1&quicksearch=$encoded&pageSize=20&sort=track&d=1&page=$page"
+        val url = "https://freemusicarchive.org/search?adv=1&quicksearch=$encoded&pageSize=$pageSize&sort=track&d=1&page=$page"
         val html = fetchPublicPage(url)
-        val tracks = parseTracks(html)
+        val tracks = parseTracks(html, pageSize)
         if (page == 1) trackPages.clear()
         tracks.forEach { parsed -> parsed.detailsUrl?.let { trackPages[parsed.track.id] = it } }
         return RelaySourcePage(tracks.map(FmaTrack::track), html.contains("page=${page + 1}"))
@@ -49,9 +59,9 @@ private data class FmaTrack(
     val detailsUrl: String?,
 )
 
-private fun parseTracks(html: String): List<FmaTrack> = buildList {
+private fun parseTracks(html: String, limit: Int): List<FmaTrack> = buildList {
     var cursor = 0
-    while (size < 20) {
+    while (size < limit) {
         val start = html.indexOf("data-track-info='", cursor).takeIf { it >= 0 } ?: return@buildList
         val jsonStart = start + "data-track-info='".length
         val jsonEnd = html.indexOf("}'>", jsonStart).takeIf { it >= 0 } ?: return@buildList

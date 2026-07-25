@@ -60,4 +60,17 @@ public interface RelaySource {
     default Map<String, String> getMediaRequestHeaders() {
         return Collections.emptyMap();
     }
+
+    /** User-editable source preferences, rendered by Relay's own settings UI. Max 16. */
+    default List<RelaySourceSetting> getSettings() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Stored preference values, applied right after Relay loads the source and again when the
+     * user edits a value. Keys match {@link RelaySourceSetting#getId()}; unknown keys must be
+     * ignored. Values were never seen by other extensions.
+     */
+    default void applySettings(Map<String, String> values) {
+    }
 }

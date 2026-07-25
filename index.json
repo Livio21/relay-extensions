@@ -5,15 +5,15 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/fma-v0.2.0/app-debug.apk",
-      "sha256": "e540cdca376029bd00a7567a447be7b9bb014b10eb81d4b49240460950458d5a",
-      "artifactSizeBytes": 863479,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/fma-v0.2.1/app-debug.apk",
+      "sha256": "b7f13d83da12c87ed20c445c30be3aaba4d56ed9b6cf7d9b94935ae7dae47a1d",
+      "artifactSizeBytes": 861037,
       "permissions": [
         "NETWORK"
       ],
