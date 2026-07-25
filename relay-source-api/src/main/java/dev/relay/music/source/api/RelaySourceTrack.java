@@ -2,6 +2,7 @@ package dev.relay.music.source.api;
 
 public final class RelaySourceTrack {
     private final String id;
+    /** May be null when the source resolves streams lazily through {@code resolveStreamUrl}. */
     private final String streamUrl;
     private final String title;
     private final String artist;
@@ -27,4 +28,3 @@ public final class RelaySourceTrack {
     public Long getDurationMs() { return durationMs; }
     public String getArtworkUrl() { return artworkUrl; }
 }
-

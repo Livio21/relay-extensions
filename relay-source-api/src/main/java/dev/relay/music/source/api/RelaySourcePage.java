@@ -15,7 +15,11 @@ public final class RelaySourcePage {
         this.hasNextPage = hasNextPage;
     }
 
-    public List<RelaySourceTrack> getTracks() { return tracks; }
-    public boolean getHasNextPage() { return hasNextPage; }
-}
+    public List<RelaySourceTrack> getTracks() {
+        return tracks;
+    }
 
+    public boolean getHasNextPage() {
+        return hasNextPage;
+    }
+}

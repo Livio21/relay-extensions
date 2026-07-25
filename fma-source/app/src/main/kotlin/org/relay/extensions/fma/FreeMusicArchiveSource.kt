@@ -28,15 +28,15 @@ private class FreeMusicArchiveSource : RelaySource {
     override fun getId() = "free-music-archive"
     override fun getName() = "Free Music Archive"
 
-    override fun search(query: String): RelaySourcePage {
+    override fun search(query: String, page: Int): RelaySourcePage {
         val term = query.removeFieldPrefix().trim()
         val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.name())
-        val url = "https://freemusicarchive.org/search?adv=1&quicksearch=$encoded&pageSize=20&sort=track&d=1"
+        val url = "https://freemusicarchive.org/search?adv=1&quicksearch=$encoded&pageSize=20&sort=track&d=1&page=$page"
         val html = fetchPublicPage(url)
         val tracks = parseTracks(html)
-        trackPages.clear()
+        if (page == 1) trackPages.clear()
         tracks.forEach { parsed -> parsed.detailsUrl?.let { trackPages[parsed.track.id] = it } }
-        return RelaySourcePage(tracks.map(FmaTrack::track), html.contains("page=2"))
+        return RelaySourcePage(tracks.map(FmaTrack::track), html.contains("page=${page + 1}"))
     }
 
     override fun resolveArtworkUrl(trackId: String): String? = trackPages[trackId]
