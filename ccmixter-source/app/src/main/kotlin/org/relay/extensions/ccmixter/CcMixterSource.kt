@@ -59,7 +59,12 @@ private class CcMixterSource : BaseRelaySource() {
         return if (term.isEmpty()) query("sort=date", page) else query("search=${term.encoded()}", page)
     }
 
-    override fun getMediaRequestHeaders() = mapOf("User-Agent" to USER_AGENT)
+    // ccMixter's file host answers 403 to requests without a Referer from its own site.
+    // Relay attaches these to every stream, artwork, and download fetch for this source.
+    override fun getMediaRequestHeaders() = mapOf(
+        "User-Agent" to USER_AGENT,
+        "Referer" to "https://ccmixter.org/",
+    )
 
     private fun query(parameters: String, page: Int): RelaySourcePage {
         val offset = (page - 1).coerceAtLeast(0) * pageSize

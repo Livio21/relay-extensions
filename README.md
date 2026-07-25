@@ -5,7 +5,7 @@ This repository is a signed Relay source catalog. Install its `repository.json` 
 ## Included sources
 
 - **Free Music Archive** — searches Free Music Archive's public music pages and returns its public stream redirect URLs. It neither logs in nor circumvents access controls. Music availability and licences are determined by Free Music Archive per track; check the linked FMA page before reusing a work.
-- **ccMixter** — queries ccMixter's public JSON API for Creative Commons remixes and originals. **Unverified for playback:** the API returns file URLs, but ccMixter's media host answered `403 Forbidden` to direct requests during testing, so streaming and downloads may not work. See [EXTENSION_AUTHORING.md §1.4](EXTENSION_AUTHORING.md).
+- **ccMixter** — queries ccMixter's public JSON API for Creative Commons remixes and originals. ccMixter's media host rejects requests without a `Referer` from its own site, so the source declares one through `getMediaRequestHeaders()`; Relay attaches it to every stream, artwork, and download fetch.
 
 ## Writing an extension
 

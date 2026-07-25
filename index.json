@@ -23,15 +23,15 @@
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/ccmixter-v0.1.0/app-debug.apk",
-      "sha256": "2368bf5bf23b4c1af5b79693575191e7c6c7e3be2530835a190be5ba0b345da8",
-      "artifactSizeBytes": 854865,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/ccmixter-v0.1.1/app-debug.apk",
+      "sha256": "b789776b71cc0fd01a2c451cf4f46fc2ef0c3bab503320b06ea0d28b3146d98a",
+      "artifactSizeBytes": 854925,
       "permissions": [
         "NETWORK"
       ],
