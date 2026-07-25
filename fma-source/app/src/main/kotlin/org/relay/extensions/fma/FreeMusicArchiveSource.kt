@@ -1,6 +1,7 @@
 package org.relay.extensions.fma
 
 import android.text.Html
+import dev.relay.music.source.api.BaseRelaySource
 import dev.relay.music.source.api.RelaySource
 import dev.relay.music.source.api.RelaySourceApi
 import dev.relay.music.source.api.RelaySourceFactory
@@ -23,7 +24,7 @@ class FreeMusicArchiveSourceFactory : RelaySourceFactory {
     override fun createSources(): List<RelaySource> = listOf(FreeMusicArchiveSource())
 }
 
-private class FreeMusicArchiveSource : RelaySource {
+private class FreeMusicArchiveSource : BaseRelaySource() {
     private val trackPages = mutableMapOf<String, String>()
     @Volatile private var pageSize = 20
 
