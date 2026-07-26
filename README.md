@@ -1,6 +1,19 @@
 # Relay source extensions
 
-This repository is a signed Relay source catalog. Install its `repository.json` URL in Relay's **Settings → Source repositories** to discover the available Android source extensions.
+This repository is a signed Relay source catalog of Android music source extensions.
+
+## Add it to Relay
+
+On the phone that has Relay installed, open **[the install page](https://livio21.github.io/relay-extensions/)** and press **Add to Relay**. Relay fetches the descriptor and shows its signing-key fingerprint; nothing is trusted, installed, or enabled until you accept it.
+
+To add it by hand instead, paste either of these into Relay's **Settings → Source repositories**:
+
+```
+Livio21/relay-extensions
+https://raw.githubusercontent.com/Livio21/relay-extensions/main/repository.json
+```
+
+> The install page needs GitHub Pages enabled for this repository (**Settings → Pages → Deploy from branch → `main` / `/docs`**). The `relay://add-repo` link cannot live in this README directly: GitHub strips non-web URL schemes from rendered Markdown.
 
 ## Included sources
 

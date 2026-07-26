@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add this repository to Relay</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050505;
+    color: #f1f1ec;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+  }
+  main { width: 100%; max-width: 30rem; }
+  h1 { font-size: 1.5rem; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 0.5rem; }
+  p { color: #92928b; line-height: 1.5; margin: 0 0 1rem; }
+  a.button {
+    display: block;
+    border: 1px solid #4b88ff;
+    color: #f1f1ec;
+    text-decoration: none;
+    text-align: center;
+    padding: 1rem;
+    margin: 1.5rem 0 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+  }
+  code {
+    display: block;
+    border: 1px solid #303030;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    color: #92928b;
+    word-break: break-all;
+    user-select: all;
+  }
+  small { display: block; color: #92928b; margin-top: 1.5rem; font-size: 0.75rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Livio21 Relay extensions</h1>
+  <p>A signed catalogue of Relay music source extensions. Open this page on the device that has
+     Relay installed, then use the button below.</p>
+
+  <a class="button" href="relay://add-repo?url=https%3A%2F%2Fraw.githubusercontent.com%2FLivio21%2Frelay-extensions%2Fmain%2Frepository.json">Add to Relay</a>
+
+  <p>Relay will fetch the repository descriptor and show you its name and signing-key fingerprint.
+     Nothing is trusted, installed, or enabled until you accept it there.</p>
+
+  <p>If the button does nothing, Relay is not installed or the link was opened on a desktop
+     browser. You can add the repository by hand instead — copy this into
+     <strong>Settings → Source repositories</strong>:</p>
+  <code>https://raw.githubusercontent.com/Livio21/relay-extensions/main/repository.json</code>
+
+  <small>Relay accepts <code style="display:inline;border:0;padding:0">Livio21/relay-extensions</code>
+     in that field too, and expands it to the address above.</small>
+</main>
+</body>
+</html>

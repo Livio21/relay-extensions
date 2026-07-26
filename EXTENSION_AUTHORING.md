@@ -308,3 +308,19 @@ gh release create <name>-v0.1.0 <apk> --title "<name> source v0.1.0" --notes "..
 
 Bump `versionCode`, `versionName`, `sha256`, and `artifactSizeBytes` together on every release, and
 re-sign the index. A digest that does not match the artifact fails closed at install time.
+
+### Making your repository one-tap installable
+
+Relay registers `relay://add-repo?url=<url-encoded descriptor url>`. Opening that link fetches the
+descriptor and opens Relay's importer for review — it never trusts a repository on its own, because
+a web page must not be able to add a signing identity.
+
+GitHub strips non-web schemes from rendered Markdown, so the link cannot go in `README.md`. Serve a
+small HTML page instead (this repository uses `docs/index.html` with GitHub Pages) containing:
+
+```html
+<a href="relay://add-repo?url=https%3A%2F%2Fraw.githubusercontent.com%2F<owner>%2F<repo>%2Fmain%2Frepository.json">Add to Relay</a>
+```
+
+Always print the plain descriptor URL on the same page as a fallback for desktop visitors and for
+anyone who does not have Relay installed.
