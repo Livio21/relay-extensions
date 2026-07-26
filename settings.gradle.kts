@@ -18,4 +18,4 @@ rootProject.name = "Relay Extensions"
 include(":relay-source-api")
 include(":fma-source:app")
 include(":ccmixter-source:app")
-
+include(":octave-poc-source:app")

@@ -37,6 +37,24 @@
       ],
       "androidPackageName": "org.relay.extensions.ccmixter",
       "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
+    },
+    {
+      "id": "org.relay.extensions.octavepoc",
+      "name": "Octave (proof of concept)",
+      "version": "0.1.0-poc",
+      "kind": "SOURCE",
+      "api": {
+        "minimum": 2,
+        "maximum": 2
+      },
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/octave-poc-v0.1.0/app-debug.apk",
+      "sha256": "e29f86853905cbe934076862661d110947c3f5877796f64e05befe8c4f6e5c93",
+      "artifactSizeBytes": 850412,
+      "permissions": [
+        "NETWORK"
+      ],
+      "androidPackageName": "org.relay.extensions.octavepoc",
+      "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
     }
   ]
 }

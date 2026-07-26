@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="dev.relay.music.source.extension" android:required="false" />
+
+    <application android:label="Octave (proof of concept)">
+        <meta-data android:name="relay.source.api" android:value="2" />
+        <meta-data android:name="relay.source.id" android:value="org.relay.extensions.octavepoc" />
+        <meta-data android:name="relay.source.class" android:value=".OctavePocSourceFactory" />
+    </application>
+</manifest>

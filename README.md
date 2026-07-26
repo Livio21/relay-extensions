@@ -19,6 +19,7 @@ https://raw.githubusercontent.com/Livio21/relay-extensions/main/repository.json
 
 - **Free Music Archive** — searches Free Music Archive's public music pages and returns its public stream redirect URLs. It neither logs in nor circumvents access controls. Music availability and licences are determined by Free Music Archive per track; check the linked FMA page before reusing a work.
 - **ccMixter** — queries ccMixter's public JSON API for Creative Commons remixes and originals. ccMixter's media host rejects requests without a `Referer` from its own site, so the source declares one through `getMediaRequestHeaders()`; Relay attaches it to every stream, artwork, and download fetch.
+- **Octave (proof of concept)** — a test-only source that accepts a manually entered numeric track ID and a user-provided public development key. It does not scrape, browse, embed keys, or use account credentials; it is not a general-purpose client and must not be used for downloads.
 
 ## Writing an extension
 
@@ -31,4 +32,3 @@ The catalog is signed with a local ECDSA P-256 key. Run `scripts/create-signing-
 Each source is a separate Android APK that Relay verifies against the signed catalog before loading. Source APKs use the Relay source API as a compile-only dependency, and must only use documented APIs or public pages users can normally access.
 
 The initial FMA artifact is a test build. Before distributing it beyond personal testing, configure a private release APK signing key and update the catalog's APK certificate digest.
-
