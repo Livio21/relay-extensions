@@ -293,12 +293,14 @@ Add the entry to `index.json`:
   "artifactSizeBytes": <bytes>,
   "permissions": ["NETWORK"],
   "androidPackageName": "org.relay.extensions.<name>",
-  "androidSigningCertificateSha256": "<apk signer sha256, lowercase hex>"
+  "androidSigningCertificateSha256": "<apk signer sha256, lowercase hex>",
+  "supportUrl": "https://<service>/support"
 }
 ```
 
 The signer must match the fingerprint already trusted for this repository — Relay treats a signer
-change as a trust break and refuses the install. Then:
+change as a trust break and refuses the install. `supportUrl` is optional, must be HTTPS, and is
+shown as Relay's host-owned **SUPPORT** button for donations or source support. Then:
 
 ```sh
 sh scripts/sign-index.sh                     # re-sign the catalogue (required)
