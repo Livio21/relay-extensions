@@ -52,7 +52,9 @@ private class OctaveSource : BaseRelaySource() {
         if (term.isEmpty()) return RelaySourcePage(emptyList(), false)
         val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.name())
         val url = "https://api.octavestreaming.com/api/search/page?query=$encoded&limit=$pageSize&page=$page"
-        val tracks = parseOctaveTracks(fetchJson(url))
+        val tracks = parseOctaveTracks(fetchJson(url)).mapIndexed { index, track ->
+            if (index < MAX_METADATA_LOOKUPS) enrichMissingMetadata(track) else track
+        }
         return RelaySourcePage(tracks, tracks.size >= pageSize)
     }
 
@@ -84,6 +86,8 @@ private class OctaveSource : BaseRelaySource() {
             readTimeout = READ_TIMEOUT_MS
             setRequestProperty("User-Agent", USER_AGENT)
             setRequestProperty("Accept", "application/json")
+            setRequestProperty("Accept-Language", "en")
+            setRequestProperty("From", "relay@example.invalid")
         }
         return try {
             when (val status = connection.responseCode) {
@@ -98,6 +102,31 @@ private class OctaveSource : BaseRelaySource() {
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun enrichMissingMetadata(track: RelaySourceTrack): RelaySourceTrack {
+        if (!track.album.isNullOrBlank() && !track.artworkUrl.isNullOrBlank()) return track
+        return runCatching {
+            val query = "recording:\"${metadataTerm(track.title)}\" AND artist:\"${metadataTerm(track.artist)}\""
+            val url = "https://musicbrainz.org/ws/2/recording/?query=${encode(query)}&fmt=json&limit=1"
+            val recording = JSONObject(fetchJson(url)).optJSONArray("recordings")?.optJSONObject(0) ?: return track
+            val release = recording.optJSONArray("releases")?.optJSONObject(0)
+            val releaseId = release?.optString("id")?.takeIf { it.matches(UUID_REGEX) }
+            val cover = if (track.artworkUrl.isNullOrBlank() && releaseId != null) {
+                "https://coverartarchive.org/release/$releaseId/front-250"
+            } else track.artworkUrl
+            RelaySourceTrack(
+                track.id,
+                track.streamUrl,
+                track.title,
+                track.artist,
+                track.album ?: release?.optString("title")?.trim()?.takeIf(String::isNotEmpty),
+                track.albumArtist,
+                track.releaseDate ?: release?.optString("date")?.trim()?.takeIf(String::isNotEmpty),
+                track.durationMs ?: recording.optLong("length", 0L).takeIf { it in 1..86_400_000L },
+                cover,
+            )
+        }.getOrDefault(track)
     }
 }
 
@@ -139,6 +168,8 @@ internal fun parseOctaveTracks(json: String): List<RelaySourceTrack> {
 
 private fun encode(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8.name())
 
+private fun metadataTerm(value: String): String = value.replace('"', ' ').trim().take(160)
+
 private fun java.io.Reader.readBounded(limit: Int): String {
     val buffer = CharArray(8_192)
     val content = StringBuilder()
@@ -155,6 +186,8 @@ private const val MAX_PAGE = 1_000
 private const val MAX_PAGE_SIZE = 100
 private const val MAX_RESPONSE_CHARS = 2_000_000
 private const val MAX_REDIRECTS = 3
+private const val MAX_METADATA_LOOKUPS = 3
 private const val CONNECT_TIMEOUT_MS = 10_000
 private const val READ_TIMEOUT_MS = 15_000
 private const val USER_AGENT = "Relay-OctaveExtension/0.1 (personal music player)"
+private val UUID_REGEX = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
