@@ -1,151 +1,92 @@
 package org.relay.extensions.octave
 
-import android.util.Log
 import dev.relay.music.source.api.BaseRelaySource
+import dev.relay.music.source.api.RelaySource
+import dev.relay.music.source.api.RelaySourceApi
+import dev.relay.music.source.api.RelaySourceFactory
 import dev.relay.music.source.api.RelaySourcePage
 import dev.relay.music.source.api.RelaySourceSetting
 import dev.relay.music.source.api.RelaySourceTrack
-import org.json.JSONObject
-import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.net.URLEncoder
-import java.util.Collections
-
-private const val TAG = "OctavePocSource"
-
-// Hardcoded API key for audio streaming.
-private const val API_KEY = "octk_tjezki_4df3168bbc8c12c1193b4017d235b25b"
-
-// Base endpoints.
-private const val API_BASE = "https://api.octavestreaming.com"
-private const val SEARCH_ENDPOINT = "$API_BASE/api/search/page"
-private const val AUDIO_ENDPOINT = "$API_BASE/audio/320"
-
-// User‑Agent sent with all requests.
-private const val USER_AGENT = "Relay-OctaveExtension/0.1.0"
+import java.nio.charset.StandardCharsets
+import org.json.JSONObject
 
 /**
  * Octave source extension.
  *
- * Uses the public search endpoint `/api/search/page` which returns a `tracks` array.
- * Stream URLs are resolved lazily because they require the API key.
+ * Uses the public search endpoint: /api/search/page?query=<q>&limit=<n>&page=<p>
+ * Audio is streamed via /audio/320?track=<id>&k=<apiKey>
+ * Artwork is taken from the album object in search results.
  */
-private class OctavePocSource : BaseRelaySource() {
+class OctaveSourceFactory : RelaySourceFactory {
+    override fun getApiVersion() = RelaySourceApi.VERSION
+    override fun createSources(): List<RelaySource> = listOf(OctaveSource())
+}
 
+private class OctaveSource : BaseRelaySource() {
     @Volatile
-    private var pageSize = 30   // default, matches the example.
+    private var pageSize = 30   // default matches the example
 
-    override fun getId(): String = "octave"
-    override fun getName(): String = "Octave"
+    override fun getId() = "octave"
+    override fun getName() = "Octave"
 
-    // No static listings – only search.
-    override fun getListings(): List<Nothing> = emptyList()
-    override fun browse(listingId: String, page: Int): RelaySourcePage =
-        RelaySourcePage(emptyList(), false)
+    override fun getSettings() = listOf(
+        RelaySourceSetting(
+            key = "page-size",
+            name = "Results per page",
+            type = RelaySourceSetting.Type.CHOICE,
+            defaultValue = "30",
+            choices = listOf("10", "20", "30", "50")
+        )
+    )
 
-    override fun search(query: String, page: Int): RelaySourcePage {
-        val trimmed = query.trim()
-        if (trimmed.isEmpty()) {
-            return RelaySourcePage(emptyList(), false)
-        }
-        val searchTerm = removeFieldPrefix(trimmed)
-        val encoded = URLEncoder.encode(searchTerm, "UTF-8")
-        // Assume the API supports a `page` parameter (1‑based).
-        // If not, we won't get more than one page anyway.
-        val url = "$SEARCH_ENDPOINT?query=$encoded&limit=$pageSize&page=$page"
-        Log.d(TAG, "Search URL: $url")
-
-        return try {
-            val response = fetchJson(url)
-            val json = JSONObject(response)
-            val tracksArray = json.optJSONArray("tracks")
-                ?: return RelaySourcePage(emptyList(), false)
-
-            val tracks = mutableListOf<RelaySourceTrack>()
-            for (i in 0 until tracksArray.length()) {
-                val item = tracksArray.getJSONObject(i)
-                val id = item.optString("id", "").takeIf { it.isNotEmpty() } ?: continue
-                val title = item.optString("title", "").takeIf { it.isNotEmpty() } ?: continue
-
-                val artistObj = item.optJSONObject("artist")
-                val artist = artistObj?.optString("name", "")?.takeIf { it.isNotEmpty() } ?: "Unknown"
-
-                val albumObj = item.optJSONObject("album")
-                val album = albumObj?.optString("title", "")?.takeIf { it.isNotEmpty() } ?: ""
-
-                val durationSec = item.optLong("duration", 0L)
-                val durationMs = durationSec * 1000L
-
-                // Artwork: prefer cover_medium, fallback to cover_big, etc.
-                val artwork = albumObj?.let {
-                    it.optString("cover_medium", "").takeIf { art -> art.isNotEmpty() }
-                        ?: it.optString("cover_big", "")
-                } ?: ""
-
-                // Lazy stream – set streamUrl = null; we resolve on playback.
-                val track = RelaySourceTrack(
-                    id = id,
-                    streamUrl = null,
-                    title = title,
-                    artist = artist,
-                    album = album,
-                    durationMs = durationMs,
-                    artworkUrl = artwork
-                )
-                tracks.add(track)
-            }
-
-            // Determine if there might be more pages.
-            // The API doesn't return total count. We'll assume if we got `pageSize` results,
-            // there may be a next page. This is a best effort.
-            val hasNext = tracks.size >= pageSize
-            RelaySourcePage(tracks, hasNext)
-        } catch (e: Exception) {
-            Log.e(TAG, "Search error", e)
-            RelaySourcePage(emptyList(), false)
-        }
+    override fun applySettings(values: Map<String, String>) {
+        values["page-size"]?.toIntOrNull()?.takeIf { it in 1..100 }?.let { pageSize = it }
     }
 
+    override fun search(query: String, page: Int): RelaySourcePage {
+        val term = query.removeFieldPrefix().trim()
+        if (term.isEmpty()) {
+            return RelaySourcePage(emptyList(), false)
+        }
+        val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.name())
+        val url = "https://api.octavestreaming.com/api/search/page?query=$encoded&limit=$pageSize&page=$page"
+        val json = fetchJson(url)
+        val tracks = parseTracks(json)
+        // Determine if there is a next page – we assume that if we got exactly `pageSize` tracks,
+        // there may be more. The API doesn't return a total count.
+        val hasNext = tracks.size >= pageSize
+        return RelaySourcePage(tracks, hasNext)
+    }
+
+    // No static listings
+    override fun getListings() = emptyList<Nothing>()
+    override fun browse(listingId: String, page: Int) = RelaySourcePage(emptyList(), false)
+
+    // Lazy stream resolution – called just before playback
     override fun resolveStreamUrl(trackId: String): String? {
-        // Build the audio URL with the track ID and the hardcoded key.
-        return "$AUDIO_ENDPOINT?track=$trackId&k=$API_KEY"
+        // Hardcoded API key (as per user request)
+        return "https://api.octavestreaming.com/audio/320?track=$trackId&k=octk_tjezki_4df3168bbc8c12c1193b4017d235b25b"
     }
 
     override fun resolveArtworkUrl(trackId: String): String? {
-        // Not needed because we provide artwork in search results.
+        // We already provide artwork in search results, so no need for this.
         return null
     }
 
     override fun resolveDownloadUrl(trackId: String): String? {
-        // Downloads use the same stream URL.
+        // Same as stream URL
         return resolveStreamUrl(trackId)
     }
 
     override fun getMediaRequestHeaders(): Map<String, String> {
         return mapOf(
-            "User-Agent" to USER_AGENT
-            // Add Referer if the media host requires it – test with curl.
+            "User-Agent" to "Relay-OctaveExtension/0.1.0"
+            // Add Referer if media host requires it – test with curl.
             // "Referer" to "https://music.octavestreaming.com/"
         )
-    }
-
-    override fun getSettings(): List<RelaySourceSetting> {
-        return listOf(
-            RelaySourceSetting(
-                key = "page-size",
-                name = "Results per page",
-                type = RelaySourceSetting.Type.CHOICE,
-                defaultValue = "30",
-                choices = listOf("10", "20", "30", "50")
-            )
-        )
-    }
-
-    override fun applySettings(values: Map<String, String>) {
-        values["page-size"]?.toIntOrNull()?.takeIf { it in 1..100 }?.let {
-            pageSize = it
-        }
     }
 
     // ---------- helpers ----------
@@ -162,29 +103,75 @@ private class OctavePocSource : BaseRelaySource() {
         return result
     }
 
-    private fun fetchJson(urlString: String): String {
-        val connection = URL(urlString).openConnection() as HttpURLConnection
-        connection.apply {
-            requestMethod = "GET"
+    private fun parseTracks(json: String): List<RelaySourceTrack> {
+        val root = JSONObject(json)
+        val tracksArray = root.optJSONArray("tracks") ?: return emptyList()
+        val result = mutableListOf<RelaySourceTrack>()
+        for (i in 0 until tracksArray.length()) {
+            val item = tracksArray.getJSONObject(i)
+            val id = item.optString("id", "").takeIf { it.isNotEmpty() } ?: continue
+            val title = item.optString("title", "").takeIf { it.isNotEmpty() } ?: continue
+
+            val artistObj = item.optJSONObject("artist")
+            val artist = artistObj?.optString("name", "")?.takeIf { it.isNotEmpty() } ?: "Unknown"
+
+            val albumObj = item.optJSONObject("album")
+            val album = albumObj?.optString("title", "")?.takeIf { it.isNotEmpty() } ?: ""
+
+            val durationSec = item.optLong("duration", 0L)
+            val durationMs = durationSec * 1000L
+
+            // Prefer cover_medium, fallback to cover_big
+            val artwork = albumObj?.let {
+                it.optString("cover_medium", "").takeIf { art -> art.isNotEmpty() }
+                    ?: it.optString("cover_big", "")
+            } ?: ""
+
+            // streamUrl is null – we resolve lazily in resolveStreamUrl()
+            val track = RelaySourceTrack(
+                id = id,
+                streamUrl = null,
+                title = title,
+                artist = artist,
+                album = album,
+                durationMs = durationMs,
+                artworkUrl = artwork
+            )
+            result.add(track)
+        }
+        return result
+    }
+
+    private fun fetchJson(url: String): String {
+        val connection = (URI(url).toURL().openConnection() as HttpURLConnection).apply {
+            instanceFollowRedirects = true
             connectTimeout = 10_000
             readTimeout = 15_000
-            setRequestProperty("User-Agent", USER_AGENT)
+            setRequestProperty("User-Agent", "Relay-OctaveExtension/0.1.0")
+            setRequestProperty("Accept", "application/json")
         }
-        try {
-            val responseCode = connection.responseCode
-            if (responseCode !in 200..299) {
-                throw IOException("HTTP $responseCode from $urlString")
+        return try {
+            check(connection.responseCode in 200..299) {
+                "Octave API returned HTTP ${connection.responseCode}"
             }
-            // Bound response size to avoid memory issues (2 MB).
-            val maxBytes = 2 * 1024 * 1024
-            val inputStream = connection.inputStream
-            val bytes = inputStream.use { it.readBytes() }
-            if (bytes.size > maxBytes) {
-                throw IOException("Response too large: ${bytes.size} bytes")
+            connection.inputStream.bufferedReader().use { reader ->
+                // Bound the response size (2 MB)
+                reader.readText(limit = 2_000_000)
             }
-            return String(bytes, Charsets.UTF_8)
         } finally {
             connection.disconnect()
+        }
+    }
+
+    // Helper to read with size limit (same as FMA)
+    private fun java.io.Reader.readText(limit: Int): String {
+        val buffer = CharArray(8_192)
+        val content = StringBuilder()
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) return content.toString()
+            check(content.length + count <= limit) { "Octave response was too large" }
+            content.append(buffer, 0, count)
         }
     }
 }
