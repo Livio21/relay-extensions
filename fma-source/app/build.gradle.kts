@@ -14,7 +14,7 @@ android {
         versionName = "0.1.4"
     }
 
-    sourceSets.getByName("test").java.srcDir(rootProject.file("source-contract-tests"))
+    sourceSets.getByName("test").java.directories.add(rootProject.file("source-contract-tests").path)
 }
 
 kotlin {
@@ -22,8 +22,9 @@ kotlin {
 }
 
 dependencies {
+    val relaySourceApi = project.dependencyFactory.createProjectDependency(":relay-source-api")
     // Relay parent-loads the API: do not package a duplicate in the source APK.
-    compileOnly(project(":relay-source-api"))
-    testImplementation(project(":relay-source-api"))
+    compileOnly(relaySourceApi)
+    testImplementation(relaySourceApi)
     testImplementation("junit:junit:4.13.2")
 }

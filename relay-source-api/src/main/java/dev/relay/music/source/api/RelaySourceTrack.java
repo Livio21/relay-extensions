@@ -7,15 +7,25 @@ public final class RelaySourceTrack {
     private final String title;
     private final String artist;
     private final String album;
+    private final String albumArtist;
+    private final String releaseDate;
     private final Long durationMs;
     private final String artworkUrl;
 
     public RelaySourceTrack(String id, String streamUrl, String title, String artist, String album, Long durationMs, String artworkUrl) {
+        this(id, streamUrl, title, artist, album, null, null, durationMs, artworkUrl);
+    }
+
+    /** Extended metadata constructor kept in sync with Relay's host API. */
+    public RelaySourceTrack(String id, String streamUrl, String title, String artist, String album,
+                            String albumArtist, String releaseDate, Long durationMs, String artworkUrl) {
         this.id = id;
         this.streamUrl = streamUrl;
         this.title = title;
         this.artist = artist;
         this.album = album;
+        this.albumArtist = albumArtist;
+        this.releaseDate = releaseDate;
         this.durationMs = durationMs;
         this.artworkUrl = artworkUrl;
     }
@@ -25,6 +35,8 @@ public final class RelaySourceTrack {
     public String getTitle() { return title; }
     public String getArtist() { return artist; }
     public String getAlbum() { return album; }
+    public String getAlbumArtist() { return albumArtist; }
+    public String getReleaseDate() { return releaseDate; }
     public Long getDurationMs() { return durationMs; }
     public String getArtworkUrl() { return artworkUrl; }
 }

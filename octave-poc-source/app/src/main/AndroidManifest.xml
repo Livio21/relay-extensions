@@ -12,7 +12,7 @@
                 android:value="2" />
         <meta-data
                 android:name="relay.source.id"
-                android:value="org.relay.extensions.octave" />
+                android:value="org.relay.extensions.octavepoc" />
         <meta-data
                 android:name="relay.source.class"
                 android:value=".OctaveSourceFactory" />

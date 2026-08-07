@@ -2,4 +2,4 @@
 build/
 local.properties
 keys/
-
+.DS_Store
