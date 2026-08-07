@@ -5,15 +5,15 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.3.15",
+      "version": "0.3.16",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-15/fma.apk",
-      "sha256": "8cb9a90279ebc8c97430b539d677af3b04e84972391f145e1310abcd5cedd66d",
-      "artifactSizeBytes": 652653,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/fma.apk",
+      "sha256": "4238ac034e4cda0d79288ae737bc21e2bbb33479126befb3616a8dd8fc67e31d",
+      "artifactSizeBytes": 652656,
       "permissions": [
         "NETWORK"
       ],
@@ -23,15 +23,15 @@
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.3.15",
+      "version": "0.3.16",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-15/ccmixter.apk",
-      "sha256": "5e086e93b6d5a5497ee4f5c53f128931f494d1846ec364738eb7a388d97b4fab",
-      "artifactSizeBytes": 652391,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/ccmixter.apk",
+      "sha256": "954a0717253e65827b2e9d19dd772762489bf6eea6cb4e8b048e58de8ac099ee",
+      "artifactSizeBytes": 652395,
       "permissions": [
         "NETWORK"
       ],
@@ -41,15 +41,15 @@
     {
       "id": "org.relay.extensions.octavepoc",
       "name": "Octave (proof of concept)",
-      "version": "0.3.15",
+      "version": "0.3.16",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-15/octavepoc.apk",
-      "sha256": "ee0e68837dff2c0a1ab8acddb0dcaf18333e61c01b4a3d3ea331819fedc55820",
-      "artifactSizeBytes": 653734,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/octavepoc.apk",
+      "sha256": "d41321dabceaa77beda6561b9ba07674ecbe311a4efc3e724d252e62a4572432",
+      "artifactSizeBytes": 653740,
       "permissions": [
         "NETWORK"
       ],
