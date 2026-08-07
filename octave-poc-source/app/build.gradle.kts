@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.dependencies
+
 plugins {
     id("com.android.application")
 }
@@ -22,4 +24,5 @@ kotlin {
 dependencies {
     // Relay parent-loads the API: the extension must not package a duplicate copy.
     compileOnly(project(":relay-source-api"))
+    testImplementation("junit:junit:4.13.2")
 }
