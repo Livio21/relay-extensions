@@ -10,8 +10,22 @@ android {
         applicationId = "org.relay.extensions.octavepoc"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.1-poc"
+        versionCode = providers.gradleProperty("relayVersionCode").map(String::toInt).orElse(1).get()
+        versionName = providers.gradleProperty("relayVersion").orElse("0.1.1-poc").get()
+    }
+
+    val relayKeystore = providers.gradleProperty("relayKeystoreFile")
+    val relayStorePassword = providers.gradleProperty("relayKeystorePassword")
+    val relayKeyAlias = providers.gradleProperty("relayKeyAlias")
+    val relayKeyPassword = providers.gradleProperty("relayKeyPassword")
+    if (relayKeystore.isPresent && relayStorePassword.isPresent && relayKeyAlias.isPresent && relayKeyPassword.isPresent) {
+        signingConfigs.create("relayRelease") {
+            storeFile = file(relayKeystore.get())
+            storePassword = relayStorePassword.get()
+            keyAlias = relayKeyAlias.get()
+            keyPassword = relayKeyPassword.get()
+        }
+        buildTypes.getByName("release").signingConfig = signingConfigs.getByName("relayRelease")
     }
 
     sourceSets.getByName("test").java.directories.add(rootProject.file("source-contract-tests").path)
