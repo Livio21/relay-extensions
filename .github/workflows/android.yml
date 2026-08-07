@@ -2,7 +2,6 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -26,3 +25,17 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Upload APKs
+      uses: actions/upload-artifact@v4
+      with:
+        name: relay-extensions-${{ github.sha }}
+        if-no-files-found: error
+        retention-days: 14
+        path: |
+          ccmixter-source/app/build/outputs/apk/debug/*.apk
+          ccmixter-source/app/build/outputs/apk/release/*.apk
+          fma-source/app/build/outputs/apk/debug/*.apk
+          fma-source/app/build/outputs/apk/release/*.apk
+          octave-poc-source/app/build/outputs/apk/debug/*.apk
+          octave-poc-source/app/build/outputs/apk/release/*.apk
