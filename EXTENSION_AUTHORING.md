@@ -42,8 +42,6 @@ first "no".
 
    If you cannot make it return `200` with headers Relay is allowed to send (see §5), the source
    cannot stream and the extension is not worth building. Say so and stop.
-5. **Is the licensing appropriate?** Prefer Creative Commons, public domain, netlabel, and
-   artist-permissioned catalogues. Do not build a source that circumvents paid access.
 
 Record the answers to 1–4 in your PR or commit message. A reviewer should not have to re-derive
 them.
