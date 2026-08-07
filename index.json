@@ -5,56 +5,56 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.2.2",
+      "version": "0.3.14",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/fma-v0.2.2/app-debug.apk",
-      "sha256": "d5d5153799291f607fa0be3b544bb62a2a1173bcae0d2e9db520189dadd9f83f",
-      "artifactSizeBytes": 860771,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-14/fma.apk",
+      "sha256": "3bd8dadd0ce33637c3fb31f1015b16e3770588857cfa858d3dc47c4fcbaaf033",
+      "artifactSizeBytes": 652660,
       "permissions": [
         "NETWORK"
       ],
       "androidPackageName": "org.relay.extensions.fma",
-      "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     },
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.1.1",
+      "version": "0.3.14",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/ccmixter-v0.1.1/app-debug.apk",
-      "sha256": "b789776b71cc0fd01a2c451cf4f46fc2ef0c3bab503320b06ea0d28b3146d98a",
-      "artifactSizeBytes": 854925,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-14/ccmixter.apk",
+      "sha256": "2ad403e6f4d6c2868a6fce827640039721075b406cec3b337d2593446aa70c72",
+      "artifactSizeBytes": 652393,
       "permissions": [
         "NETWORK"
       ],
       "androidPackageName": "org.relay.extensions.ccmixter",
-      "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     },
     {
       "id": "org.relay.extensions.octavepoc",
       "name": "Octave (proof of concept)",
-      "version": "0.1.0-poc",
+      "version": "0.3.14",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/octave-poc-v0.1.0/app-debug.apk",
-      "sha256": "e29f86853905cbe934076862661d110947c3f5877796f64e05befe8c4f6e5c93",
-      "artifactSizeBytes": 850412,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-14/octavepoc.apk",
+      "sha256": "4eba3b4a538f3c7eed49ae12c17b795d90290b0d8d11d9a2bb60d014b4e18938",
+      "artifactSizeBytes": 652836,
       "permissions": [
         "NETWORK"
       ],
       "androidPackageName": "org.relay.extensions.octavepoc",
-      "androidSigningCertificateSha256": "fb23fc61c3fba3fa6eb2996c922f14e0a6aaa451f1e42c69341956fadda5ebc2"
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     }
   ]
 }
