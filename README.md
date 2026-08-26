@@ -17,9 +17,10 @@ https://raw.githubusercontent.com/Livio21/relay-extensions/main/repository.json
 
 ## Included sources
 
+- **Audius** — searches Audius's public discovery API and trending charts for user-uploaded originals and remixes. No user key is needed; search and trending listings return track-shaped results and the source resolves a CID stream at playback time.
 - **Free Music Archive** — searches Free Music Archive's public music pages and returns its public stream redirect URLs. It neither logs in nor circumvents access controls. Music availability and licences are determined by Free Music Archive per track; check the linked FMA page before reusing a work.
 - **ccMixter** — queries ccMixter's public JSON API for Creative Commons remixes and originals. ccMixter's media host rejects requests without a `Referer` from its own site, so the source declares one through `getMediaRequestHeaders()`; Relay attaches it to every stream, artwork, and download fetch.
-- **Octave (proof of concept)** — a test-only source that accepts a manually entered numeric track ID and a user-provided public development key. It does not scrape, browse, embed keys, or use account credentials; it is not a general-purpose client and must not be used for downloads.
+- **Octave (proof of concept)** — a test-only source that accepts a manually entered numeric track ID and a user-provided public development key. It does not scrape, browse, embed keys, or use account credentials; it is not a general-purpose client and must not be used for downloads. Retained frozen for testing; no further catalog changes.
 
 ## Writing an extension
 

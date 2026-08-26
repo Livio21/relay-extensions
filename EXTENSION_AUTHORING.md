@@ -15,8 +15,12 @@ answers questions about a catalogue.
 Most failed extensions fail here, not in the Kotlin. Work through this in order and stop at the
 first "no".
 
-1. **Is there a public endpoint that needs no API key or login?** Relay has no credential storage
-   for sources yet. If it needs a key, stop.
+1. **Is there a public endpoint that works without an account login?** Keys are allowed, but
+   only under this exact shape: the service hands out a free developer/playback key to any user,
+   and **the user enters it themselves in the source's settings** (a `TEXT` setting). Never embed
+   a key, secret, or token in the APK, repository, or catalog, and never require an account
+   password or a personally-issued bearer token. A source whose key cannot be expressed as
+   "user pastes their own key into settings" fails qualification.
 2. **Does one request return a list of *tracks*?** Endpoints that return albums/items force one
    extra request per result to find playable files, which will not fit inside Relay's 10-second
    search budget. If the API is item-shaped, either find a track-shaped endpoint or pick another
@@ -58,7 +62,8 @@ Your extension **may**: make its own network requests, parse responses, keep in-
 declare bounded settings.
 
 Your extension **must not**: read or write Relay's database or files, request Android permissions
-beyond `INTERNET`, embed credentials or API secrets, load code at runtime, spawn long-lived
+beyond `INTERNET`, embed credentials or API secrets (a key the *user* enters into settings is
+their configuration, not yours — see §1.1), load code at runtime, spawn long-lived
 threads, or block indefinitely. Relay bounds every call it makes to you, but bad behaviour inside
 that window is still your responsibility.
 

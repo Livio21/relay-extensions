@@ -40,6 +40,8 @@ jobs:
         if-no-files-found: error
         retention-days: 14
         path: |
+          audius-source/app/build/outputs/apk/debug/*.apk
+          audius-source/app/build/outputs/apk/release/*.apk
           ccmixter-source/app/build/outputs/apk/debug/*.apk
           ccmixter-source/app/build/outputs/apk/release/*.apk
           fma-source/app/build/outputs/apk/debug/*.apk
@@ -84,7 +86,7 @@ jobs:
     - name: Build signed release APKs
       run: |
         chmod +x gradlew
-        ./gradlew :fma-source:app:assembleRelease :ccmixter-source:app:assembleRelease :octave-poc-source:app:assembleRelease \
+        ./gradlew :audius-source:app:assembleRelease :fma-source:app:assembleRelease :ccmixter-source:app:assembleRelease :octave-poc-source:app:assembleRelease \
           -PrelayVersion="$RELAY_VERSION" \
           -PrelayVersionCode="${{ github.run_number }}" \
           -PrelayKeystoreFile="$RUNNER_TEMP/relay-release.keystore" \
@@ -97,6 +99,7 @@ jobs:
     - name: Prepare release assets
       run: |
         mkdir -p "$RUNNER_TEMP/release"
+        cp audius-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/audius.apk"
         cp fma-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/fma.apk"
         cp ccmixter-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/ccmixter.apk"
         cp octave-poc-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/octavepoc.apk"
@@ -117,6 +120,7 @@ jobs:
           --release-tag "$RELEASE_TAG" \
           --repository "${{ github.repository }}" \
           --certificate "$CERTIFICATE_SHA256" \
+          --artifact org.relay.extensions.audius "$RUNNER_TEMP/release/audius.apk" \
           --artifact org.relay.extensions.fma "$RUNNER_TEMP/release/fma.apk" \
           --artifact org.relay.extensions.ccmixter "$RUNNER_TEMP/release/ccmixter.apk" \
           --artifact org.relay.extensions.octavepoc "$RUNNER_TEMP/release/octavepoc.apk"

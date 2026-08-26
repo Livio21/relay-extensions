@@ -39,6 +39,24 @@
       "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     },
     {
+      "id": "org.relay.extensions.audius",
+      "name": "Audius",
+      "version": "0.3.15",
+      "kind": "SOURCE",
+      "api": {
+        "minimum": 2,
+        "maximum": 2
+      },
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-15/audius.apk",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "artifactSizeBytes": 0,
+      "permissions": [
+        "NETWORK"
+      ],
+      "androidPackageName": "org.relay.extensions.audius",
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
+    },
+    {
       "id": "org.relay.extensions.octavepoc",
       "name": "Octave (proof of concept)",
       "version": "0.3.16",
