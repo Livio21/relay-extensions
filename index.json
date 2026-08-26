@@ -5,15 +5,15 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.3.16",
+      "version": "0.3.17",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/fma.apk",
-      "sha256": "4238ac034e4cda0d79288ae737bc21e2bbb33479126befb3616a8dd8fc67e31d",
-      "artifactSizeBytes": 652656,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/fma.apk",
+      "sha256": "0e7819763e69910126daa8e865bd87bc6c670523d638fa3b13912a274ea4db20",
+      "artifactSizeBytes": 652657,
       "permissions": [
         "NETWORK"
       ],
@@ -23,15 +23,15 @@
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.3.16",
+      "version": "0.3.17",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/ccmixter.apk",
-      "sha256": "954a0717253e65827b2e9d19dd772762489bf6eea6cb4e8b048e58de8ac099ee",
-      "artifactSizeBytes": 652395,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/ccmixter.apk",
+      "sha256": "e7905b655bf7c9059e019845f68d14ca68adb07b287e9eb17c86349963ec1f8b",
+      "artifactSizeBytes": 652397,
       "permissions": [
         "NETWORK"
       ],
@@ -41,15 +41,15 @@
     {
       "id": "org.relay.extensions.audius",
       "name": "Audius",
-      "version": "0.3.15",
+      "version": "0.3.17",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-15/audius.apk",
-      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "artifactSizeBytes": 0,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/audius.apk",
+      "sha256": "7eb3fd66b05438fdf0a453ee9fa28b7996059bfea7aa60629c8a3a467f914d5f",
+      "artifactSizeBytes": 653568,
       "permissions": [
         "NETWORK"
       ],
@@ -59,15 +59,15 @@
     {
       "id": "org.relay.extensions.octavepoc",
       "name": "Octave (proof of concept)",
-      "version": "0.3.16",
+      "version": "0.3.17",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-16/octavepoc.apk",
-      "sha256": "d41321dabceaa77beda6561b9ba07674ecbe311a4efc3e724d252e62a4572432",
-      "artifactSizeBytes": 653740,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/octavepoc.apk",
+      "sha256": "1ae728f6bcfdcdfb1f72363f122ca3101ec0e32f35f8d5492fc27066058c5477",
+      "artifactSizeBytes": 653743,
       "permissions": [
         "NETWORK"
       ],
