@@ -5,15 +5,15 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.3.17",
+      "version": "0.3.18",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/fma.apk",
-      "sha256": "0e7819763e69910126daa8e865bd87bc6c670523d638fa3b13912a274ea4db20",
-      "artifactSizeBytes": 652657,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/fma.apk",
+      "sha256": "814aac8ce9fd95ef152c773051a4b66d206050780eac3f2eee710e2d9412ccd2",
+      "artifactSizeBytes": 652662,
       "permissions": [
         "NETWORK"
       ],
@@ -23,15 +23,15 @@
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.3.17",
+      "version": "0.3.18",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/ccmixter.apk",
-      "sha256": "e7905b655bf7c9059e019845f68d14ca68adb07b287e9eb17c86349963ec1f8b",
-      "artifactSizeBytes": 652397,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/ccmixter.apk",
+      "sha256": "55611099b1321e812536bb9455a7e358a0478d84091c9201a606ec06f5e58369",
+      "artifactSizeBytes": 652407,
       "permissions": [
         "NETWORK"
       ],
@@ -41,56 +41,56 @@
     {
       "id": "org.relay.extensions.audius",
       "name": "Audius",
-      "version": "0.3.17",
+      "version": "0.3.18",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/audius.apk",
-      "sha256": "7eb3fd66b05438fdf0a453ee9fa28b7996059bfea7aa60629c8a3a467f914d5f",
-      "artifactSizeBytes": 653568,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/audius.apk",
+      "sha256": "18d5b95263a5f0cef1b710d2d3cabee1f58baf9d124f6a6ffb4cdc885785c9fe",
+      "artifactSizeBytes": 653570,
       "permissions": [
         "NETWORK"
       ],
       "androidPackageName": "org.relay.extensions.audius",
       "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     },
-        {
-            "id": "org.relay.extensions.octavepoc",
-            "name": "Octave (proof of concept)",
-            "version": "0.3.17",
-            "kind": "SOURCE",
-            "api": {
-                "minimum": 2,
-                "maximum": 2
-            },
-            "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/octavepoc.apk",
-            "sha256": "1ae728f6bcfdcdfb1f72363f122ca3101ec0e32f35f8d5492fc27066058c5477",
-            "artifactSizeBytes": 653743,
-            "permissions": [
-                "NETWORK"
-            ],
-            "androidPackageName": "org.relay.extensions.octavepoc",
-            "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
-        },
-        {
-            "id": "org.relay.extensions.soulseek",
-            "name": "Soulseek",
-            "version": "0.3.17",
-            "kind": "SOURCE",
-            "api": {
-                "minimum": 2,
-                "maximum": 2
-            },
-            "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-17/soulseek.apk",
-            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-            "artifactSizeBytes": 0,
-            "permissions": [
-                "NETWORK"
-            ],
-            "androidPackageName": "org.relay.extensions.soulseek",
-            "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
-        }
-    ]
+    {
+      "id": "org.relay.extensions.octavepoc",
+      "name": "Octave (proof of concept)",
+      "version": "0.3.18",
+      "kind": "SOURCE",
+      "api": {
+        "minimum": 2,
+        "maximum": 2
+      },
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/octavepoc.apk",
+      "sha256": "205645278ff90110bc29c52b0d46e9c663b0eb5fbfbd434b1f69e6d33f6b9e56",
+      "artifactSizeBytes": 653749,
+      "permissions": [
+        "NETWORK"
+      ],
+      "androidPackageName": "org.relay.extensions.octavepoc",
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
+    },
+    {
+      "id": "org.relay.extensions.soulseek",
+      "name": "Soulseek",
+      "version": "0.3.18",
+      "kind": "SOURCE",
+      "api": {
+        "minimum": 2,
+        "maximum": 2
+      },
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/soulseek.apk",
+      "sha256": "67bd0b38191966cfa615f62c5acd168eb9d71afb7163a4bbb0069c373ed2176e",
+      "artifactSizeBytes": 680296,
+      "permissions": [
+        "NETWORK"
+      ],
+      "androidPackageName": "org.relay.extensions.soulseek",
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
+    }
+  ]
 }
