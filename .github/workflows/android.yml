@@ -48,6 +48,8 @@ jobs:
           fma-source/app/build/outputs/apk/release/*.apk
           octave-poc-source/app/build/outputs/apk/debug/*.apk
           octave-poc-source/app/build/outputs/apk/release/*.apk
+          soulseek-source/app/build/outputs/apk/debug/*.apk
+          soulseek-source/app/build/outputs/apk/release/*.apk
 
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -86,7 +88,7 @@ jobs:
     - name: Build signed release APKs
       run: |
         chmod +x gradlew
-        ./gradlew :audius-source:app:assembleRelease :fma-source:app:assembleRelease :ccmixter-source:app:assembleRelease :octave-poc-source:app:assembleRelease \
+        ./gradlew :audius-source:app:assembleRelease :fma-source:app:assembleRelease :ccmixter-source:app:assembleRelease :octave-poc-source:app:assembleRelease :soulseek-source:app:assembleRelease \
           -PrelayVersion="$RELAY_VERSION" \
           -PrelayVersionCode="${{ github.run_number }}" \
           -PrelayKeystoreFile="$RUNNER_TEMP/relay-release.keystore" \
@@ -103,6 +105,7 @@ jobs:
         cp fma-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/fma.apk"
         cp ccmixter-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/ccmixter.apk"
         cp octave-poc-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/octavepoc.apk"
+        cp soulseek-source/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release/soulseek.apk"
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
@@ -123,7 +126,8 @@ jobs:
           --artifact org.relay.extensions.audius "$RUNNER_TEMP/release/audius.apk" \
           --artifact org.relay.extensions.fma "$RUNNER_TEMP/release/fma.apk" \
           --artifact org.relay.extensions.ccmixter "$RUNNER_TEMP/release/ccmixter.apk" \
-          --artifact org.relay.extensions.octavepoc "$RUNNER_TEMP/release/octavepoc.apk"
+          --artifact org.relay.extensions.octavepoc "$RUNNER_TEMP/release/octavepoc.apk" \
+          --artifact org.relay.extensions.soulseek "$RUNNER_TEMP/release/soulseek.apk"
         printf '%s' "$REPOSITORY_PRIVATE_KEY" > "$RUNNER_TEMP/repository-private.pem"
         openssl dgst -sha256 -sign "$RUNNER_TEMP/repository-private.pem" -out "$RUNNER_TEMP/index.sig" index.json
         base64 < "$RUNNER_TEMP/index.sig" | tr -d '\n' > index.json.sig

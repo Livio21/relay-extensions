@@ -15,18 +15,29 @@ answers questions about a catalogue.
 Most failed extensions fail here, not in the Kotlin. Work through this in order and stop at the
 first "no".
 
-1. **Is there a public endpoint that works without an account login?** Keys are allowed, but
-   only under this exact shape: the service hands out a free developer/playback key to any user,
-   and **the user enters it themselves in the source's settings** (a `TEXT` setting). Never embed
-   a key, secret, or token in the APK, repository, or catalog, and never require an account
-   password or a personally-issued bearer token. A source whose key cannot be expressed as
-   "user pastes their own key into settings" fails qualification.
+1. **Is there a public endpoint that works without an account login — or is the source
+   account- or peer-to-peer based?** Keys are allowed, and so are user accounts, but only under
+   these exact shapes:
+
+   - **Key in settings**: the service hands out a free developer/playback key to any user, and
+     **the user enters it themselves in the source's settings** (a `TEXT` setting).
+   - **Account in settings**: the service needs a user account (for example Soulseek, a
+     self-hosted bridge, or a personal cloud). The user enters **their own** username and
+     password (or instance URL + API key) in the source's settings. Never embed a key, secret,
+     token, or default credential in the APK, repository, or catalog, never log a credential or
+     derived secret, and never ship an account of your own. A source whose credentials cannot be
+     expressed as "the user pastes their own account into settings" fails qualification.
+   - **Peer-to-peer network**: the source speaks the network's peer protocol directly from inside
+     Relay's process (see §1.5). This is allowed, but it inherits every rule here plus the P2P
+     rules below.
+
 2. **Does one request return a list of *tracks*?** Endpoints that return albums/items force one
    extra request per result to find playable files, which will not fit inside Relay's 10-second
    search budget. If the API is item-shaped, either find a track-shaped endpoint or pick another
-   source.
-3. **Is everything HTTPS?** Relay rejects `http://` for catalogues, streams, artwork, and
-   downloads. No exceptions.
+   source. A P2P search that fans out across peers must collect and rank within the same budget.
+3. **Is everything HTTPS?** Relay rejects `http://` for catalogues, artwork, downloads, and
+   streams — with one exception: a P2P source may serve its own transfers from
+   `http://127.0.0.1:<port>/...` (loopback only, see §1.5). No other exceptions.
 4. **Verify the media URL actually fetches — this is the step people skip.** Getting JSON back
    from the API proves nothing about the audio. Take a real file URL from the API response and
    fetch it from a plain client:
@@ -47,8 +58,33 @@ first "no".
    If you cannot make it return `200` with headers Relay is allowed to send (see §5), the source
    cannot stream and the extension is not worth building. Say so and stop.
 
-Record the answers to 1–4 in your PR or commit message. A reviewer should not have to re-derive
-them.
+Record the answers to 1–4 (and, for P2P sources, 5–6) in your PR or commit message. A reviewer
+should not have to re-derive them.
+
+### 1.5. Peer-to-peer sources
+
+A source may implement a peer-to-peer protocol directly (raw TCP, peer discovery, account login
+to the network's server) inside Relay's process. The Soulseek source is the reference. The rules:
+
+- **Login is the user's account.** Credentials come from `TEXT` settings, are held in memory
+  only, and are never logged, cached to disk, or sent anywhere except the network's own login
+  endpoint.
+- **Serve streams over loopback only.** Relay's player can only fetch URLs, so a P2P source
+  binds a minimal HTTP server to `127.0.0.1` (never `0.0.0.0` or any routable interface) and
+  returns `http://127.0.0.1:<port>/...` from `resolveStreamUrl`. Relay's host enforces the
+  loopback shape; everything else must remain HTTPS.
+- **Peer listen port.** Accepting inbound peer connections is part of the protocol; bind a
+  normal port and declare it to the network. This is expected behavior for a P2P client, not a
+  deviation from §2.
+- **Bounded threads and memory.** Name every thread (`relay-<source>-...`), mark them daemon,
+  cap concurrent connections and transfers, and cap how much of a transfer may buffer in memory.
+  Never block a host call past its documented timeout budget (10 s for search and stream
+  resolution).
+- **Be a good network citizen.** Respect the network's own etiquette: no bulk-farming, no
+  automated account creation, one connection per peer, honest upload/share reporting. A source
+  that gets its users banned fails qualification regardless of code quality.
+- **Failures surface, never hang.** If a transfer cannot start (denied, queued too long, peer
+  offline), the stream URL must fail fast with a readable reason instead of stalling the player.
 
 ---
 
@@ -58,14 +94,15 @@ Relay verifies the repository catalogue signature and the APK signing certificat
 classes **into its own process**. There is no OS sandbox between your code and Relay's. That trust
 is why the rules below are absolute rather than stylistic.
 
-Your extension **may**: make its own network requests, parse responses, keep in-memory caches, and
-declare bounded settings.
+Your extension **may**: make its own network requests (including direct peer-to-peer connections
+per §1.5), parse responses, keep in-memory caches, and declare bounded settings — including the
+user's own account credentials for the service it fronts.
 
 Your extension **must not**: read or write Relay's database or files, request Android permissions
-beyond `INTERNET`, embed credentials or API secrets (a key the *user* enters into settings is
-their configuration, not yours — see §1.1), load code at runtime, spawn long-lived
-threads, or block indefinitely. Relay bounds every call it makes to you, but bad behaviour inside
-that window is still your responsibility.
+beyond `INTERNET`, embed credentials or API secrets (an account or key the *user* enters into
+settings is their configuration, not yours — see §1.1), load code at runtime, spawn unbounded or
+non-daemon threads, or block indefinitely. Relay bounds every call it makes to you, but bad
+behaviour inside that window is still your responsibility.
 
 ---
 
@@ -225,7 +262,8 @@ stream from a host you do not control.
 
 Relay validates everything you return and disables a misbehaving source with a visible reason.
 
-- URLs must be HTTPS and ≤8192 chars; track ids ≤512 chars.
+- URLs must be HTTPS and ≤8192 chars — except a P2P source's own loopback streams
+  (`http://127.0.0.1:<port>/...`, never any other host); track ids ≤512 chars.
 - `title` and `artist` non-blank, ≤1024 chars; `durationMs` within 1 ms…24 h.
 - ≤100 tracks per page, ≤24 listings, ≤16 settings, ≤32 sources per APK.
 - Queries arrive ≤256 chars; pages 1…1000.
