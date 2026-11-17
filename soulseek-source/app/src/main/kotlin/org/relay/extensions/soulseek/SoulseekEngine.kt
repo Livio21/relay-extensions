@@ -3,7 +3,9 @@ package org.relay.extensions.soulseek
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.EOFException
+import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetSocketAddress
@@ -27,7 +29,10 @@ data class EngineConfig(val username: String, val password: String)
  * Process-scoped Soulseek client shared by every source instance so a login survives host-side
  * re-instantiation. All threads are daemon and bounded; every socket read carries a timeout.
  */
-class SoulseekEngine(private val config: EngineConfig) {
+class SoulseekEngine(
+    private val config: EngineConfig,
+    private val spoolDir: () -> File? = { null },
+) {
     private val stateLock = Any()
     private var serverSocket: Socket? = null
     private var serverInput: InputStream? = null
@@ -53,6 +58,11 @@ class SoulseekEngine(private val config: EngineConfig) {
     private val transferSlots = Semaphore(MAX_TRANSFERS)
     private val transferCounter = AtomicInteger(0)
     private val threadCounter = AtomicInteger(0)
+
+    init {
+        // Remove spools orphaned by a previous process; never touches a live transfer.
+        TransferBuffer.cleanStaleSpools(spoolDir())
+    }
 
     private class AddressWait(val latch: CountDownLatch) {
         @Volatile var ip: String = ""
@@ -233,7 +243,12 @@ class SoulseekEngine(private val config: EngineConfig) {
         transfers[key]?.let { evict(it) }
         evictFinished()
         if (!transferSlots.tryAcquire()) throw IOException("Too many Soulseek transfers are active.")
-        val transfer = DownloadTransfer(reference.username, reference.path, transferCounter.incrementAndGet())
+        val transfer = DownloadTransfer(
+            reference.username,
+            reference.path,
+            transferCounter.incrementAndGet(),
+            spoolDir(),
+        )
         transfers[key] = transfer
         transfersByToken[transfer.token] = transfer
         loopbackServer.register(transfer.token, transfer)
@@ -605,7 +620,10 @@ class SoulseekEngine(private val config: EngineConfig) {
         peerConnections.clear()
         pierceExpectations.clear()
         peerAddressWaits.clear()
-        transfersByToken.values.forEach { transfer -> transfer.fail("The Soulseek connection closed.") }
+        transfersByToken.values.forEach { transfer ->
+            transfer.fail("The Soulseek connection closed.")
+            transfer.release()
+        }
     }
 
     private fun evict(transfer: DownloadTransfer) {
@@ -672,20 +690,46 @@ class PeerConnection internal constructor(val username: String, private val sock
 }
 
 /** Growable in-memory partial file that HTTP range requests read while bytes arrive. */
-class TransferBuffer {
+/**
+ * Spools one peer file to disk so hi-res FLAC and long live sets can be ranged by the loopback
+ * server without holding the file in memory. Falls back to a bounded in-memory buffer when no
+ * writable spool directory exists (the previous behaviour, capped at 64 MiB).
+ */
+class TransferBuffer(private val spoolDir: File?) {
     private val lock = Object()
-    private var data = ByteArray(INITIAL_CAPACITY)
     private var size = 0L
+    private var file: RandomAccessFile? = null
+    private var spoolFile: File? = null
+    private var memory: ByteArray? = null
+    private var spoolUnavailable = false
 
     fun append(source: ByteArray, count: Int) {
+        if (count <= 0) return
         synchronized(lock) {
-            if (size + count > MAX_STREAM_BYTES) throw EOFException("The file exceeds the streaming limit.")
-            if (size + count > data.size) {
-                var capacity = data.size
-                while (capacity < size + count) capacity = capacity shl 1
-                data = data.copyOf(capacity)
+            if (size + count > MAX_STREAM_BYTES) {
+                throw EOFException("The file exceeds the streaming limit.")
             }
-            System.arraycopy(source, 0, data, size.toInt(), count)
+            ensureStorage()
+            val raf = file
+            if (raf != null) {
+                raf.seek(size)
+                raf.write(source, 0, count)
+            } else {
+                var target = memory ?: ByteArray(INITIAL_CAPACITY).also { memory = it }
+                val required = size + count
+                if (required > MAX_MEMORY_BYTES) {
+                    throw EOFException("No writable spool folder and the file exceeds the in-memory limit.")
+                }
+                if (required > target.size) {
+                    var capacity = target.size
+                    while (capacity < required) {
+                        capacity = (capacity shl 1).coerceAtMost(MAX_MEMORY_BYTES.toInt())
+                    }
+                    target = target.copyOf(capacity)
+                    memory = target
+                }
+                System.arraycopy(source, 0, target, size.toInt(), count)
+            }
             size += count
             lock.notifyAll()
         }
@@ -712,27 +756,107 @@ class TransferBuffer {
 
     fun clear() {
         synchronized(lock) {
-            data = ByteArray(INITIAL_CAPACITY)
+            runCatching { file?.close() }
+            file = null
+            spoolFile?.let { stale -> runCatching { stale.delete() } }
+            spoolFile = null
+            memory = null
             size = 0
+            lock.notifyAll()
         }
     }
 
     /** Copies at most [count] bytes from [offset]; callers reserve via waitFor first. */
-    fun readInto(destination: ByteArray, offset: Long, count: Int): Int = synchronized(lock) {
-        val available = (size - offset).toInt().coerceAtLeast(0)
-        val toCopy = count.coerceAtMost(available)
-        System.arraycopy(data, offset.toInt(), destination, 0, toCopy)
-        toCopy
+    fun readInto(destination: ByteArray, offset: Long, count: Int): Int {
+        if (count <= 0) return 0
+        synchronized(lock) {
+            if (offset < 0 || offset >= size) return 0
+            val available = (size - offset).coerceAtMost(count.toLong()).toInt()
+            val raf = file
+            if (raf != null) {
+                raf.seek(offset)
+                var read = 0
+                while (read < available) {
+                    val copied = raf.read(destination, read, available - read)
+                    if (copied < 0) break
+                    read += copied
+                }
+                return read
+            }
+            val buffer = memory ?: return 0
+            if (offset + available > buffer.size) return 0
+            System.arraycopy(buffer, offset.toInt(), destination, 0, available)
+            return available
+        }
     }
 
-    private companion object {
-        const val INITIAL_CAPACITY = 1 shl 20
-        const val MAX_STREAM_BYTES = 64L * 1_024 * 1_024
+    private fun ensureStorage() {
+        if (file != null || memory != null) return
+        if (spoolUnavailable) {
+            memory = ByteArray(INITIAL_CAPACITY)
+            return
+        }
+        val dir = spoolDir
+        if (dir == null) {
+            spoolUnavailable = true
+            memory = ByteArray(INITIAL_CAPACITY)
+            return
+        }
+        if (!dir.exists() && !dir.mkdirs()) {
+            spoolUnavailable = true
+            memory = ByteArray(INITIAL_CAPACITY)
+            return
+        }
+        if (!dir.isDirectory || !dir.canWrite()) {
+            spoolUnavailable = true
+            memory = ByteArray(INITIAL_CAPACITY)
+            return
+        }
+        val created = runCatching { File.createTempFile(SPOOL_PREFIX, SPOOL_SUFFIX, dir) }.getOrNull()
+        if (created == null) {
+            spoolUnavailable = true
+            memory = ByteArray(INITIAL_CAPACITY)
+            return
+        }
+        try {
+            file = RandomAccessFile(created, "rw")
+            spoolFile = created
+        } catch (_: IOException) {
+            runCatching { created.delete() }
+            spoolUnavailable = true
+            memory = ByteArray(INITIAL_CAPACITY)
+        }
+    }
+
+    companion object {
+        private const val INITIAL_CAPACITY = 1 shl 20
+        private const val SPOOL_PREFIX = "relay-slsk-"
+        private const val SPOOL_SUFFIX = ".part"
+        private const val MAX_MEMORY_BYTES = 64L * 1_024 * 1_024
+
+        /** Deletes spool files orphaned by a previous process; never touches a fresh transfer. */
+        fun cleanStaleSpools(dir: File?, olderThanMs: Long = 24L * 60 * 60 * 1_000) {
+            if (dir == null || !dir.isDirectory) return
+            val cutoff = System.currentTimeMillis() - olderThanMs
+            dir.listFiles()?.forEach { candidate ->
+                if (candidate.isFile &&
+                    candidate.name.startsWith(SPOOL_PREFIX) &&
+                    candidate.lastModified() < cutoff
+                ) {
+                    runCatching { candidate.delete() }
+                }
+            }
+        }
     }
 }
 
 /** Lifecycle for one file transfer; the loopback HTTP server renders it as a stream. */
-class DownloadTransfer internal constructor(val username: String, val path: String, val token: Int) {
+class DownloadTransfer internal constructor(
+    val username: String,
+    val path: String,
+    val token: Int,
+    spoolDir: File?,
+) {
     enum class State { QUEUED, CONNECTING, STREAMING, DONE, FAILED }
 
     private val lock = Object()
@@ -742,7 +866,7 @@ class DownloadTransfer internal constructor(val username: String, val path: Stri
     private var remoteToken = -1
     private var queuePosition: String? = null
 
-    val buffer = TransferBuffer()
+    val buffer = TransferBuffer(spoolDir)
 
     @Volatile var sizeBytes = -1L
     @Volatile var received = 0L

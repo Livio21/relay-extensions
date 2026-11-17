@@ -218,7 +218,8 @@ const val FORMAT_ANY = "any"
 const val FORMAT_MP3 = "mp3"
 const val FORMAT_FLAC = "flac"
 const val MIN_DURATION_SECONDS = 30
-const val MAX_STREAM_BYTES = 64L * 1_024 * 1_024
+// Disk-spooled, so hi-res FLAC and long live sets fit; the cap only stops absurd entries.
+const val MAX_STREAM_BYTES = 2L * 1_024 * 1_024 * 1_024
 const val MAX_FILES_PER_RESPONSE = 250
 
 /** Server and peer message codes used by this client. */

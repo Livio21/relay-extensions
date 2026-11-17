@@ -30,6 +30,6 @@ https://raw.githubusercontent.com/Livio21/relay-extensions/main/repository.json
 
 The catalog is signed with a local ECDSA P-256 key. Run `scripts/create-signing-key.sh` once, retain `keys/repository-private.pem` securely outside Git, and run `scripts/sign-index.sh` after every `index.json` change. The repository public key is published in `repository.json`.
 
-Each source is a separate Android APK that Relay verifies against the signed catalog before loading. Source APKs use the Relay source API as a compile-only dependency, and must only use documented APIs or public pages users can normally access.
+Each source is a separate Android APK that Relay verifies against the signed catalog before loading. Source APKs use the Relay source API as a compile-only dependency. They may use documented, unofficial, or scraped endpoints; what they may not do is embed credentials, ship an account of their own, or expect Relay to play a DRM-encrypted stream.
 
 The initial FMA artifact is a test build. Before distributing it beyond personal testing, configure a private release APK signing key and update the catalog's APK certificate digest.

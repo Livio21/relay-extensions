@@ -15,9 +15,17 @@ answers questions about a catalogue.
 Most failed extensions fail here, not in the Kotlin. Work through this in order and stop at the
 first "no".
 
-1. **Is there a public endpoint that works without an account login — or is the source
-   account- or peer-to-peer based?** Keys are allowed, and so are user accounts, but only under
-   these exact shapes:
+**Sourcing policy (2026-11-17).** An extension may use any endpoint that returns playable audio:
+a documented API, the mobile/web API the official client uses, or a scraped page. Official APIs
+are usually the most stable, but "not official" is not a disqualifier and Terms-of-Service
+language is not a gate here — a source is judged by whether it returns music and keeps working.
+Practical consequences still apply: unofficial endpoints break without notice, a source that
+hammers a host gets blocked, and one that gets user accounts banned is a bad source. DRM is out of
+scope for a technical reason, not a moral one: Relay hands a plain HTTPS URL to the platform
+player and has no decryption path, so an encrypted stream cannot play regardless of the source.
+
+1. **How does the source get access — anonymous, key, account, or peer-to-peer?** Keys are
+   allowed, and so are user accounts, but only under these exact shapes:
 
    - **Key in settings**: the service hands out a free developer/playback key to any user, and
      **the user enters it themselves in the source's settings** (a `TEXT` setting).
@@ -94,9 +102,10 @@ Relay verifies the repository catalogue signature and the APK signing certificat
 classes **into its own process**. There is no OS sandbox between your code and Relay's. That trust
 is why the rules below are absolute rather than stylistic.
 
-Your extension **may**: make its own network requests (including direct peer-to-peer connections
-per §1.5), parse responses, keep in-memory caches, and declare bounded settings — including the
-user's own account credentials for the service it fronts.
+Your extension **may**: make its own network requests against official, unofficial, or scraped
+endpoints (including direct peer-to-peer connections per §1.5), parse responses, keep in-memory
+caches, and declare bounded settings — including the user's own account credentials for the
+service it fronts.
 
 Your extension **must not**: read or write Relay's database or files, request Android permissions
 beyond `INTERNET`, embed credentials or API secrets (an account or key the *user* enters into

@@ -8,6 +8,7 @@ import dev.relay.music.source.api.RelaySourceListing
 import dev.relay.music.source.api.RelaySourcePage
 import dev.relay.music.source.api.RelaySourceSetting
 import dev.relay.music.source.api.RelaySourceTrack
+import java.io.File
 
 /**
  * Soulseek peer network. The user logs in with their own Soulseek account through the source
@@ -25,6 +26,7 @@ private class SoulseekSource : BaseRelaySource() {
     @Volatile private var password = ""
     @Volatile private var maxResults = DEFAULT_MAX_RESULTS
     @Volatile private var format = FORMAT_ANY
+    @Volatile private var spoolFolder = ""
     @Volatile private var engine: SoulseekEngine? = null
 
     override fun getId() = "soulseek"
@@ -50,6 +52,12 @@ private class SoulseekSource : BaseRelaySource() {
             FORMAT_ANY,
             listOf(FORMAT_ANY, FORMAT_MP3, FORMAT_FLAC),
         ),
+        RelaySourceSetting(
+            "spool-folder",
+            "Spool folder (optional)",
+            RelaySourceSetting.Type.TEXT,
+            "",
+        ),
     )
 
     override fun applySettings(values: Map<String, String>) {
@@ -71,6 +79,7 @@ private class SoulseekSource : BaseRelaySource() {
         password = newPassword
         maxResults = newMax
         format = newFormat
+        spoolFolder = values["spool-folder"]?.trim().orEmpty().take(MAX_SPOOL_FOLDER_CHARS)
     }
 
     override fun search(query: String, page: Int): RelaySourcePage {
@@ -103,7 +112,19 @@ private class SoulseekSource : BaseRelaySource() {
     }
 
     private fun engine(): SoulseekEngine = synchronized(this) {
-        engine?.takeIf { !it.isShutdown() } ?: SoulseekEngine(EngineConfig(username, password)).also { engine = it }
+        engine?.takeIf { !it.isShutdown() }
+            ?: SoulseekEngine(EngineConfig(username, password), ::spoolDirectory).also { engine = it }
+    }
+
+    /**
+     * Large FLAC files are spooled to disk. Empty means the app's temp directory (a
+     * `relay-soulseek` child); an unwritable value falls back to the bounded memory buffer.
+     */
+    private fun spoolDirectory(): File? {
+        val custom = spoolFolder
+        if (custom.isNotEmpty()) return File(custom)
+        val temp = System.getProperty("java.io.tmpdir")?.trim().orEmpty()
+        return if (temp.isEmpty()) null else File(temp, "relay-soulseek")
     }
 
     private fun toTrack(file: SoulseekFile): RelaySourceTrack? {
@@ -135,6 +156,7 @@ private class SoulseekSource : BaseRelaySource() {
 
     private companion object {
         const val DEFAULT_MAX_RESULTS = 50
+        const val MAX_SPOOL_FOLDER_CHARS = 512
         const val MAX_PAGE = 1_000
         const val MAX_QUERY = 256
         const val SEARCH_BUDGET_MS = 9_200L
