@@ -5,15 +5,15 @@
     {
       "id": "org.relay.extensions.fma",
       "name": "Free Music Archive (test)",
-      "version": "0.3.18",
+      "version": "0.3.19",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/fma.apk",
-      "sha256": "814aac8ce9fd95ef152c773051a4b66d206050780eac3f2eee710e2d9412ccd2",
-      "artifactSizeBytes": 652662,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/fma.apk",
+      "sha256": "415387b9709fdd18864e69d159737ec4b9bd1ee9cdb458017540ac83ee23dd48",
+      "artifactSizeBytes": 652660,
       "permissions": [
         "NETWORK"
       ],
@@ -23,15 +23,15 @@
     {
       "id": "org.relay.extensions.ccmixter",
       "name": "ccMixter",
-      "version": "0.3.18",
+      "version": "0.3.19",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/ccmixter.apk",
-      "sha256": "55611099b1321e812536bb9455a7e358a0478d84091c9201a606ec06f5e58369",
-      "artifactSizeBytes": 652407,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/ccmixter.apk",
+      "sha256": "38e23a828544ccd2bf088a5d68b6aa5c6c55a19d41beae7ee28c0a8d1008914b",
+      "artifactSizeBytes": 652398,
       "permissions": [
         "NETWORK"
       ],
@@ -41,15 +41,15 @@
     {
       "id": "org.relay.extensions.audius",
       "name": "Audius",
-      "version": "0.3.18",
+      "version": "0.3.19",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/audius.apk",
-      "sha256": "18d5b95263a5f0cef1b710d2d3cabee1f58baf9d124f6a6ffb4cdc885785c9fe",
-      "artifactSizeBytes": 653570,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/audius.apk",
+      "sha256": "9d3374a626bc000feb99ade1a627d19903eb5cdbe261fef758b12ceab40dc217",
+      "artifactSizeBytes": 653567,
       "permissions": [
         "NETWORK"
       ],
@@ -59,15 +59,15 @@
     {
       "id": "org.relay.extensions.octavepoc",
       "name": "Octave (proof of concept)",
-      "version": "0.3.18",
+      "version": "0.3.19",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/octavepoc.apk",
-      "sha256": "205645278ff90110bc29c52b0d46e9c663b0eb5fbfbd434b1f69e6d33f6b9e56",
-      "artifactSizeBytes": 653749,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/octavepoc.apk",
+      "sha256": "af31e52ff316f7b82998ad61e9952143971e1f0949e9bb573bb965d8a57dbb75",
+      "artifactSizeBytes": 653743,
       "permissions": [
         "NETWORK"
       ],
@@ -77,19 +77,37 @@
     {
       "id": "org.relay.extensions.soulseek",
       "name": "Soulseek",
-      "version": "0.3.18",
+      "version": "0.3.19",
       "kind": "SOURCE",
       "api": {
         "minimum": 2,
         "maximum": 2
       },
-      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-18/soulseek.apk",
-      "sha256": "67bd0b38191966cfa615f62c5acd168eb9d71afb7163a4bbb0069c373ed2176e",
-      "artifactSizeBytes": 680296,
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/soulseek.apk",
+      "sha256": "ff17e50c39f27bcbcd07e333e34280bff121cad2b01c7e9aaacc57867b0a55ca",
+      "artifactSizeBytes": 681565,
       "permissions": [
         "NETWORK"
       ],
       "androidPackageName": "org.relay.extensions.soulseek",
+      "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
+    },
+    {
+      "id": "org.relay.extensions.jamendo",
+      "name": "Jamendo",
+      "kind": "SOURCE",
+      "api": {
+        "minimum": 2,
+        "maximum": 2
+      },
+      "permissions": [
+        "NETWORK"
+      ],
+      "androidPackageName": "org.relay.extensions.jamendo",
+      "version": "0.3.19",
+      "artifactUrl": "https://github.com/Livio21/relay-extensions/releases/download/relay-19/jamendo.apk",
+      "sha256": "2154a7db4e5c1ae5d51dd1f0fec15fa69368e4fedac8d393764cfcdb8707c4a3",
+      "artifactSizeBytes": 655876,
       "androidSigningCertificateSha256": "9ceda550c7a998e91e9651a8277357710eb1a7874c48026f87161beeb1c8fcc8"
     }
   ]
